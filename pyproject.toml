@@ -1,0 +1,64 @@
+[project]
+name = "evalkit"
+version = "0.2.0"
+description = "A local, record-keeping eval framework for conversational agents (Inspect AI)."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+# The framework's own dependencies, and only those: `evalkit` imports exactly these six.
+# Everything a particular target or judge needs is an extra below, so the boundary in the
+# code is the boundary in the install.
+dependencies = [
+    "inspect-ai>=0.3.80",
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "typer>=0.12",
+    "rich>=13.7",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Provider clients for the judge. Never imported by name — `inspect_ai.get_model` loads
+# whichever one EVAL_JUDGE_MODEL points at — so they are declared, not imported.
+judges = ["anthropic>=0.40", "openai>=1.40"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "ruff>=0.6"]
+
+# `cli.py` derives PROGRAM from the invoked name, so a downstream distribution is free to
+# declare its own console script pointing at the same app.
+[project.scripts]
+evalkit = "evalkit.cli:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/evalkit"]
+# The dashboard's stylesheet and script are loaded from disk at runtime. A wheel without
+# them fails only when a user builds a page, which is far too late to notice.
+artifacts = ["src/evalkit/analysis/assets/*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "C4", "RET", "ARG"]
+ignore = ["B008", "BLE001", "S110", "DTZ011"]
+
+[tool.ruff.lint.per-file-ignores]
+# Inspect fixes these signatures: a scorer takes (state, target) and a solver takes
+# (state, generate) whether or not it uses both.
+"src/evalkit/scorers/*" = ["ARG001"]
+"src/evalkit/solver.py" = ["ARG001"]
+# A Target implements a protocol: several methods legitimately ignore arguments another
+# target would need.
+"src/evalkit/target.py" = ["ARG002"]
+"src/evalkit/mock.py" = ["ARG002"]
+# The derived-scorer table is a uniform (judge, rng) signature so it can be applied in one
+# loop; several entries legitimately ignore one or both arguments.
+"src/evalkit/analysis/demo.py" = ["ARG005"]
+"tests/*" = ["ARG001", "ARG002", "S101"]

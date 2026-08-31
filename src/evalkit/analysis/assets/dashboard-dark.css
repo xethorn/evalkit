@@ -1,0 +1,21 @@
+
+    --ground:#0d1014; --surface:#15191f; --surface-2:#191e25;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#8a93a1;
+    --rule:#262b33; --grid:#20252c; --noise:rgba(57,135,229,.16);
+    --series-1:#3987e5;
+    --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --add-bg:#122a12; --add-ink:#7fd47f; --del-bg:#2c1414; --del-ink:#f0a0a0;
+    --sel-a:#c98500; --sel-b:#3987e5;
+    /* The ramp runs the other way on a dark surface so HIGH stays the prominent end:
+       reusing the light steps makes 0.00 the brightest cell on the page. */
+    --s0:#1b2027; --s1:#17334f; --s2:#184f95; --s3:#256abf; --s4:#3987e5; --s5:#6da7ec; --s6:#9ec5f4;
+    --s0-fg:#c3c2b7; --s1-fg:#c9dcf5; --s2-fg:#ffffff; --s3-fg:#ffffff;
+    --s4-fg:#ffffff; --s5-fg:#0d1014; --s6-fg:#0d1014;
+    --d0:#1c2027; --d0-fg:#6f7885;
+    --dp1:#17334f; --dp2:#256abf; --dp3:#6da7ec;
+    --dp1-fg:#c9dcf5; --dp2-fg:#ffffff; --dp3-fg:#0d1014;
+    --dn1:#4a1f1f; --dn2:#8f2c2c; --dn3:#e07a7a;
+    --dn1-fg:#f0c8c8; --dn2-fg:#ffffff; --dn3-fg:#0d1014;
+    --g0:#2a2415; --g1:#463916; --g2:#6b5410; --g3:#96760f; --g4:#c1930f; --g5:#e3b52f; --g6:#f7d271;
+    --g0-fg:#bfae7a; --g1-fg:#e0cf99; --g2-fg:#ffffff; --g3-fg:#ffffff;
+    --g4-fg:#1a1508; --g5-fg:#1a1508; --g6-fg:#1a1508;

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{{page_title}}</title>
+{{font_link}}<style>{{css}}</style></head><body>
+<header class="appbar">
+<div class="appbar-top">
+<div class="brand"><h1>evalkit</h1><span class="subject">{{subject}}</span></div>
+<div class="facts">{{facts}}</div>
+{{demo_flag}}
+</div>
+<div class="tabs" role="tablist">{{tabs}}</div>
+<div class="controls-row">{{controls}}</div>
+</header>
+<main class="content">{{panels}}
+<footer class="page">Generated {{generated_at}} by <code>{{program}} dashboard</code> from the local
+results database. No model was called to produce this page, and nothing on it depends on another
+server: every run, result, conversation and trace is embedded.{{demo_note}}</footer>
+</main>
+{{docks}}
+<button type="button" class="dock-rail" data-role="dock-open" hidden>Diff</button>
+<script id="payload" type="application/json">{{payload}}</script>
+<script>{{js}}</script>
+</body></html>
