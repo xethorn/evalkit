@@ -3,6 +3,7 @@ name = "evalkit"
 version = "0.2.0"
 description = "A local, record-keeping eval framework for conversational agents (Inspect AI)."
 readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.11,<3.13"
 # The framework's own dependencies, and only those: `evalkit` imports exactly these six.
 # Everything a particular target or judge needs is an extra below, so the boundary in the
