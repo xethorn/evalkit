@@ -1,6 +1,6 @@
 # evalkit Examples
 
-This folder provides a complete example showing how to integrate a custom AI agent framework target with `evalkit`, structure evaluation suites, and evaluate results.
+This folder provides a complete example showing how to integrate a custom AI agent framework target with `evalkit`, structure evaluation suites (including multi-turn conversations and tool process checks), and evaluate results.
 
 ## Overview of Files
 
@@ -11,10 +11,55 @@ This folder provides a complete example showing how to integrate a custom AI age
   - `fingerprint()` records environment parameters (agent version, tenant ID) for provenance tracking.
   - `doctor_checks()` adds target-specific preflight diagnostics to `evalkit doctor`.
 - **`sample_suite.yaml`**: Demonstrates the evaluation suite structure.
-  - `suite`: Name of the suite (`example-customer-support`).
-  - `version`: Integer version tracking changes to the suite.
+  - `suite`: Structured suite metadata (`name`, `description`, `version`).
   - `defaults`: Default severity and tags for all tasks in the file.
-  - `tasks`: Individual evaluation cases containing `id`, `prompt`, `severity`, `tags`, and `expect` parameters (`must_contain`, `rubric`, and `tools`).
+  - `tasks`: Individual evaluation cases containing `id`, `prompt`, `severity`, `tags`, `expect` parameters (`must_contain`, `rubric`, `tools`), and optional multi-turn `user` simulation parameters.
+
+## Suite Format and Tool Process Checks
+
+Suite files support both output quality grading and tool execution process checks:
+
+```yaml
+suite:
+  name: example-customer-support
+  description: "Suite description..."
+  version: 1
+
+defaults:
+  severity: medium
+
+tasks:
+  - id: sample-task-1
+    prompt: "..."
+    expect:
+      must_contain:
+        - "expected response text"
+      rubric: |
+        - Criterion 1 evaluated by LLM judge.
+      tools:
+        required:
+          - lookup_account_details
+        forbidden:
+          - execute_db_write
+        max_calls:
+          lookup_account_details: 2
+        order:
+          - lookup_account_details
+```
+
+Supported `tools` expectations:
+- `required`: Tools that must be invoked.
+- `forbidden`: Tools that must not be invoked.
+- `max_calls`: Maximum call limits per tool.
+- `order`: Subsequence ordering constraint for tool calls.
+
+## Multi-Turn User Simulation
+
+When evaluating agents that ask clarifying questions or require information across multiple turns, `evalkit` provides a simulated user layer configured under the `user:` field in task definitions:
+
+- **`persona`**: Brief background on who the user is.
+- **`facts`**: List of facts the simulated user knows.
+- **`answers`**: Scripted deterministic responses matched against the agent's questions using regex (`when:`) to keep multi-turn evaluations reproducible across runs.
 
 ## How LLM Judges Work
 

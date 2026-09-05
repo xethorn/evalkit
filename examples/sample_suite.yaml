@@ -1,8 +1,10 @@
 # Example evaluation suite for evalkit
-# Defines top-level suite metadata, default configurations, and individual tasks.
+# Defines suite metadata, default configurations, and individual tasks.
 
-suite: example-customer-support
-version: 1
+suite:
+  name: example-customer-support
+  description: "Customer support evaluation suite covering policy search, account lookup, and multi-turn upgrade requests."
+  version: 1
 
 defaults:
   severity: medium
@@ -26,6 +28,8 @@ tasks:
       tools:
         required:
           - search_knowledge_base
+        forbidden:
+          - execute_db_write
 
   - id: account-balance-check
     prompt: "Check the account status and balance for account ID ACC-9821."
@@ -43,3 +47,36 @@ tasks:
       tools:
         required:
           - lookup_account_details
+        max_calls:
+          lookup_account_details: 2
+
+  - id: multi-turn-subscription-upgrade
+    prompt: "I want to upgrade my subscription tier, but I'm not sure which plan fits my needs."
+    severity: medium
+    tags:
+      - multi-turn
+      - subscription
+    user:
+      persona: "A small business owner looking to scale team size from 3 to 15 members."
+      facts:
+        - "Current plan: Starter ($10/mo)"
+        - "Current team size: 3 members"
+        - "Target team size: 15 members"
+        - "Key requirement: Centralized billing and SSO"
+      answers:
+        - when: "team|members|how many"
+          reply: "We currently have 3 team members, but we plan to grow to 15 members next month."
+        - when: "feature|requirement|need"
+          reply: "We need centralized billing and SAML SSO integration."
+    expect:
+      must_contain:
+        - "Pro"
+      rubric: |
+        - Asks clarifying questions to understand team size and required features.
+        - Recommends an appropriate plan (e.g. Pro or Enterprise) based on user's responses.
+        - Details key features relevant to the user's requirements (centralized billing, SSO).
+      tools:
+        required:
+          - search_knowledge_base
+        order:
+          - search_knowledge_base
