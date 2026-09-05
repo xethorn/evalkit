@@ -115,3 +115,8 @@ noise floor, a model-only change, a clean win and a regression a rising average 
 about a blog-writing assistant, deliberately unrelated to whatever you are evaluating: a
 demo that looks like your own results is one somebody eventually screenshots into a
 decision.
+
+## License
+
+[MIT](LICENSE)
+
