@@ -24,6 +24,8 @@ class OrderCancelChatDriver:
 
     async def start(self) -> None:
         """Initialize session."""
+        # REAL INTEGRATION GUIDE:
+        # Initialize connection to backend order service / LLM orchestrator here.
 
     async def new_chat(self) -> None:
         """Reset conversation state."""
@@ -32,6 +34,19 @@ class OrderCancelChatDriver:
         """Process user message and return response with tool activity."""
         self.turn_index += 1
 
+        # =========================================================================
+        # REAL INTEGRATION GUIDE:
+        # Replace this mock logic with actual HTTP or gRPC calls to your support agent API:
+        #
+        #   res = await self.support_service.post_chat(session_id=self.chat_id, prompt=text)
+        #   return TurnResult(
+        #       index=self.turn_index,
+        #       text=res.text,
+        #       tool_calls=[ToolCall(name=c.name, status=c.status, detail=c.detail) for c in res.tool_calls]
+        #   )
+        # =========================================================================
+
+        # [MOCK DATA] Simulated responses for order cancellation & support
         if "cancel" in text.lower() or "ord-9921" in text.lower():
             response_text = (
                 "Order ORD-9921 has been cancelled according to policy. A refund of $85.00 has "

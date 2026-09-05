@@ -25,6 +25,12 @@ class CrmChatDriver:
 
     async def start(self) -> None:
         """Authenticate and establish session with CRM API."""
+        # REAL INTEGRATION GUIDE:
+        # Initialize HTTP client and authenticate against CRM API, e.g.:
+        #   self.client = httpx.AsyncClient(
+        #       base_url=self.base_url,
+        #       headers={"Authorization": f"Bearer {os.environ['CRM_API_KEY']}"}
+        #   )
 
     async def new_chat(self) -> None:
         """Reset CRM session state."""
@@ -33,6 +39,25 @@ class CrmChatDriver:
         """Send message to CRM agent and record normalized tool calls."""
         self.turn_index += 1
 
+        # =========================================================================
+        # REAL INTEGRATION GUIDE:
+        # In a real setup, dispatch the prompt to your CRM agent API endpoint:
+        #
+        #   res = await self.client.post("/agent/chat", json={"prompt": text})
+        #   data = res.json()
+        #   response_text = data["message"]
+        #   tool_calls = [
+        #       ToolCall(
+        #           name=call["tool_name"],
+        #           status=call["status"],
+        #           turn=self.turn_index,
+        #           detail=call["endpoint_payload"],
+        #       )
+        #       for call in data.get("tool_executions", [])
+        #   ]
+        # =========================================================================
+
+        # [MOCK DATA] Simulated agent finding customer record and calling POST /customers/CUST-1042/birthday
         if "birthday" in text.lower():
             response_text = (
                 "Found customer Jane Doe (CUST-1042). Updated birthday to 1990-05-15 via POST "

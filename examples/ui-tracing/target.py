@@ -22,6 +22,21 @@ class BraintrustTraceClient:
 
     async def fetch_spans(self, trace_id: str) -> list[dict[str, Any]]:
         """Fetch spans from Braintrust trace API."""
+        # =========================================================================
+        # REAL INTEGRATION GUIDE:
+        # In a real setup, replace this mock with calls to the Braintrust SDK or API:
+        #
+        #   from braintrust import init_logger
+        #   # or HTTP call:
+        #   # async with httpx.AsyncClient() as client:
+        #   #     res = await client.get(
+        #   #         f"https://api.braintrust.dev/v1/trace/{trace_id}",
+        #   #         headers={"Authorization": f"Bearer {self.api_key}"}
+        #   #     )
+        #   #     return res.json()["spans"]
+        # =========================================================================
+
+        # [MOCK DATA] Simulated spans returned from Braintrust trace API:
         return [
             {
                 "span_id": f"span-nav-{trace_id}",
@@ -49,16 +64,31 @@ class UiTracingChatDriver:
         self.turn_index = -1
 
     async def start(self) -> None:
-        """Launch Playwright browser."""
+        """Launch Playwright browser session."""
+        # REAL INTEGRATION GUIDE:
+        # Initialize Playwright browser page here, e.g.:
+        #   self.browser = await playwright.chromium.launch()
+        #   self.page = await self.browser.new_page()
 
     async def new_chat(self) -> None:
         """Navigate to fresh session page."""
+        # REAL INTEGRATION GUIDE:
+        # Navigate browser page to clean chat session:
+        #   await self.page.goto("https://app.example.com/chat/new")
 
     async def send(self, text: str) -> TurnResult:
         """Send input via UI DOM, wait for agent, and fetch vendor spans."""
         self.turn_index += 1
         trace_id = f"braintrust-trace-{self.sample_id}-{self.turn_index}"
 
+        # REAL INTEGRATION GUIDE:
+        # 1. Type message into DOM input element and click submit:
+        #    await self.page.fill("#chat-input", text)
+        #    await self.page.click("#send-button")
+        # 2. Wait for assistant turn response element to settle.
+        # 3. Read trace ID from response headers or DOM data attributes.
+
+        # Fetch telemetry spans from Braintrust trace API for this turn
         spans = await self.trace_client.fetch_spans(trace_id)
         tool_calls = [
             ToolCall(
@@ -70,6 +100,7 @@ class UiTracingChatDriver:
             for span in spans
         ]
 
+        # [MOCK DATA] Simulated rendered text from UI response:
         rendered = f"UI Agent completed navigation for query: '{text}'."
         return TurnResult(
             index=self.turn_index,
