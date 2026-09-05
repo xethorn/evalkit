@@ -1,0 +1,58 @@
+suite:
+  name: cancelling-order
+  description: "Evaluation suite for order lookup, multi-turn cancellations, and refund policy execution."
+  version: 1
+
+defaults:
+  severity: medium
+  tags:
+    - order-cancellation
+    - support
+
+tasks:
+  - id: cancel-unfulfilled-order
+    prompt: "I placed order ORD-9921 an hour ago, but I want to cancel it and get a refund."
+    severity: high
+    tags:
+      - cancel
+      - refund
+    expect:
+      must_contain:
+        - "ORD-9921"
+        - "refund"
+      rubric: |
+        - Looks up order ORD-9921 using lookup_order.
+        - Verifies that the order is unfulfilled and eligible for cancellation.
+        - Issues the order cancellation and confirms refund processing.
+      tools:
+        required:
+          - lookup_order
+          - cancel_order
+        order:
+          - lookup_order
+          - cancel_order
+
+  - id: multi-turn-order-lookup-cancellation
+    prompt: "I want to cancel my recent purchase, but I don't remember my order number."
+    severity: high
+    tags:
+      - multi-turn
+      - lookup
+    user:
+      persona: "A customer who purchased an item using email jane@example.com."
+      facts:
+        - "Order ID: ORD-9921"
+        - "Customer email: jane@example.com"
+      answers:
+        - when: "order id|number|email"
+          reply: "My order ID is ORD-9921 and my email is jane@example.com."
+    expect:
+      must_contain:
+        - "ORD-9921"
+      rubric: |
+        - Asks the user for their order ID or identifying details politely.
+        - Once provided, cancels order ORD-9921.
+      tools:
+        required:
+          - lookup_order
+          - cancel_order

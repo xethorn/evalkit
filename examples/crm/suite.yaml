@@ -1,0 +1,33 @@
+suite:
+  name: crm-operations
+  description: "Evaluation suite for CRM customer lookup and record mutation operations."
+  version: 1
+
+defaults:
+  severity: medium
+  tags:
+    - crm
+    - api
+
+tasks:
+  - id: update-customer-birthday
+    prompt: "Find customer Jane Doe and update her birthday to May 15, 1990."
+    severity: high
+    tags:
+      - customer
+      - birthday
+    expect:
+      must_contain:
+        - "CUST-1042"
+        - "1990-05-15"
+      rubric: |
+        - Uses find_customer to locate the customer ID before updating.
+        - Calls update_customer_birthday via the /customers API endpoint.
+        - Confirms the birthday update to the user.
+      tools:
+        required:
+          - find_customer
+          - update_customer_birthday
+        order:
+          - find_customer
+          - update_customer_birthday

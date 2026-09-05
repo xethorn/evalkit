@@ -1,0 +1,28 @@
+suite:
+  name: ui-navigation
+  description: "Evaluation suite for web UI browser automation and telemetry trace verification."
+  version: 1
+
+defaults:
+  severity: medium
+  tags:
+    - ui
+    - braintrust
+
+tasks:
+  - id: cancel-order-via-ui
+    prompt: "Navigate to the checkout page and click the cancel order button."
+    severity: high
+    tags:
+      - ui-automation
+    expect:
+      rubric: |
+        - Navigates to the checkout page URL.
+        - Clicks the cancel order DOM button element.
+      tools:
+        required:
+          - browser_navigation
+          - dom_click
+        order:
+          - browser_navigation
+          - dom_click
