@@ -1,106 +1,96 @@
 # evalkit Examples
 
-This folder provides a complete set of integration examples showing how to integrate custom AI agent targets with `evalkit`, structure evaluation suites (including multi-turn conversations and tool process checks), and evaluate results across API, UI, and trace observability patterns.
+This repository contains modular examples demonstrating how to integrate custom AI agent targets with `evalkit`, define evaluation suites, handle multi-turn user interactions, enforce process tool expectations, and ingest telemetry traces.
 
-## Overview of Target Examples
+## Examples Overview
 
-1. **`simple_target.py`**: Minimal custom `Target` (`SimpleTarget`) and `ChatDriver` (`SimpleChatDriver`).
-   - `judge_domain()` specifies what domain the LLM grader assumes (e.g. `"an AI customer support assistant"`).
-   - `tool_aliases()` translates raw tool call names to human-readable names.
-   - `vocabulary()` provides domain terms for template expansions (`${randomVendor()}`, `${randomAccount()}`).
-   - `fingerprint()` records environment parameters (agent version, tenant ID) for provenance tracking.
-   - `doctor_checks()` adds target-specific preflight diagnostics to `evalkit doctor`.
+Each example lives in its own dedicated directory with its target driver, evaluation suite configuration, and documentation:
 
-2. **`crm_target.py`**: API-driven CRM product target (`CrmTarget`) interacting directly with REST endpoints (`/customers`).
-   - Demonstrates finding customer records and executing API operations (such as updating a customer's birthday via `POST /customers/{id}/birthday`).
-   - Normalizes CRM API calls into `ToolCall` events for process scoring.
+### 1. `examples/crm/`
+- **Focus**: REST API / CRM Product Integration (`/customers`).
+- **Target**: `examples.crm.target:crm_target`
+- **Key Concepts**: Customer search and birthday updates via HTTP API calls (`POST /customers/{id}/birthday`), tool process matching, and custom target preflight checks (`evalkit doctor`).
 
-3. **`ui_trace_target.py`**: Web UI driver target (`UiTraceTarget`) paired with vendor trace telemetry ingestion (e.g., Braintrust, LangSmith, Phoenix).
-   - Demonstrates driving an agent session in a browser (e.g., Playwright) while querying a vendor API for execution spans, tool calls, and model telemetry to construct `TurnResult`.
+### 2. `examples/cancelling-order/`
+- **Focus**: Customer Support Agent & Order Management.
+- **Target**: `examples.cancelling-order.target:cancelling_order_target`
+- **Key Concepts**: Multi-turn user simulation (`user:` block with persona, facts, and scripted regex answers), order lookup, cancellation, and refund policy evaluation.
 
-4. **`sample_suite.yaml`**: Suite structure example.
-   - `suite`: Structured metadata (`name`, `description`, `version`).
-   - `defaults`: Default severity and tags for all tasks in the file.
-   - `tasks`: Individual evaluation cases containing `id`, `prompt`, `severity`, `tags`, `expect` parameters (`must_contain`, `rubric`, `tools`), and optional multi-turn `user` simulation parameters.
+### 3. `examples/ui-tracing/`
+- **Focus**: Browser UI Driver & Vendor Trace Telemetry Ingestion.
+- **Target**: `examples.ui-tracing.target:ui_tracing_target`
+- **Key Concepts**: Automating a web application via Playwright while ingesting trace spans and tool execution telemetry from vendor platforms like **Braintrust**, LangSmith, or Phoenix.
 
-## Suite Format and Tool Process Checks
+---
 
-Suite files support both output quality grading and tool execution process checks:
+## Suite YAML Structure
+
+Suite files define evaluation metadata and tasks:
 
 ```yaml
 suite:
-  name: example-customer-support
-  description: "Customer support evaluation suite covering policy search, account lookup, and multi-turn upgrade requests."
+  name: example-suite-name
+  description: "Description of what this evaluation suite tests."
   version: 1
 
 defaults:
   severity: medium
+  tags:
+    - customer-support
 
 tasks:
-  - id: sample-task-1
-    prompt: "..."
+  - id: example-task-id
+    prompt: "Prompt sent to the agent..."
     expect:
       must_contain:
-        - "expected response text"
+        - "Expected response string"
       rubric: |
-        - Criterion 1 evaluated by LLM judge.
+        - Criterion evaluated by the LLM judge.
       tools:
         required:
-          - lookup_account_details
+          - lookup_tool
         forbidden:
-          - execute_db_write
+          - write_tool
         max_calls:
-          lookup_account_details: 2
+          lookup_tool: 2
         order:
-          - lookup_account_details
+          - lookup_tool
 ```
 
-Supported `tools` expectations:
-- `required`: Tools that must be invoked.
-- `forbidden`: Tools that must not be invoked.
-- `max_calls`: Maximum call limits per tool.
-- `order`: Subsequence ordering constraint for tool calls.
-
-## Multi-Turn User Simulation
-
-When evaluating agents that ask clarifying questions or require information across multiple turns, `evalkit` provides a simulated user layer configured under the `user:` field in task definitions:
-
-- **`persona`**: Brief background on who the user is.
-- **`facts`**: List of facts the simulated user knows.
-- **`answers`**: Scripted deterministic responses matched against the agent's questions using regex (`when:`) to keep multi-turn evaluations reproducible across runs.
-
-## How LLM Judges Work
-
-In `evalkit`, quality evaluation uses **LLM-as-a-judge** paired with deterministic assertions:
-1. **Assertions**: `must_contain`, `must_not_contain`, and `must_approx` check exact strings or numeric values first.
-2. **Rubrics**: `expect.rubric` contains bullet points evaluated by the LLM judge (e.g., Anthropic Claude or OpenAI GPT). The system prompt is automatically customized using `target.judge_domain()` so the judge grades using domain-appropriate criteria.
+---
 
 ## Running the Examples
 
-### 1. Preflight Diagnostics (`evalkit doctor`)
+Set `PYTHONPATH=.` and select the target you want to test via `EVAL_TARGET`:
 
-To run health checks for any example target, set `PYTHONPATH=.` and `EVAL_TARGET`:
+### Run Preflight Health Checks (`evalkit doctor`)
 
 ```bash
-# Simple Target
-export PYTHONPATH=.
-export EVAL_TARGET=examples.simple_target:my_target
-evalkit doctor
-
 # CRM API Target
-export EVAL_TARGET=examples.crm_target:crm_target
+export PYTHONPATH=.
+export EVAL_TARGET=examples.crm.target:crm_target
 evalkit doctor
 
-# UI + Braintrust Vendor Trace Target
-export EVAL_TARGET=examples.ui_trace_target:ui_trace_target
+# Order Cancellation Target
+export EVAL_TARGET=examples.cancelling-order.target:cancelling_order_target
+evalkit doctor
+
+# UI + Braintrust Tracing Target
+export EVAL_TARGET=examples.ui-tracing.target:ui_tracing_target
 evalkit doctor
 ```
 
-### 2. Running an Offline Self-Test
+### Run Suite Evaluations (`evalkit run`)
 
-Run `evalkit` against the offline mock target or a custom target with a specific suite file:
+Run an evaluation against the offline mock engine or a custom suite file:
 
 ```bash
-evalkit run --mock good
-evalkit run --suite examples/sample_suite.yaml --mock good
+# Run CRM suite
+evalkit run --suite examples/crm/suite.yaml --mock good
+
+# Run Cancelling Order suite
+evalkit run --suite examples/cancelling-order/suite.yaml --mock good
+
+# Run UI Tracing suite
+evalkit run --suite examples/ui-tracing/suite.yaml --mock good
 ```

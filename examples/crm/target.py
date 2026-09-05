@@ -1,10 +1,7 @@
-"""An example CRM target integration for evalkit.
+"""CRM Product API Target example for evalkit.
 
-Demonstrates integrating with a CRM API (/customers) to find customer records
-and perform operations like setting or updating a birthday via API endpoints.
-
-Usage:
-    EVAL_TARGET=examples.crm_target:crm_target evalkit doctor
+Demonstrates integrating an agent that calls a CRM API (/customers)
+to query customer records and perform operations like updating birthdays via HTTP endpoints.
 """
 
 from __future__ import annotations
@@ -19,7 +16,7 @@ from evalkit.trace import ToolCall
 class CrmChatDriver:
     """ChatDriver communicating with a CRM product API."""
 
-    def __init__(self, sample_id: str, epoch: int, base_url: str = "https://api.crm-example.com/v1") -> None:
+    def __init__(self, sample_id: str, epoch: int, base_url: str = "https://api.crm.example.com/v1") -> None:
         self.sample_id = sample_id
         self.epoch = epoch
         self.base_url = base_url
@@ -27,16 +24,15 @@ class CrmChatDriver:
         self.turn_index = -1
 
     async def start(self) -> None:
-        """Authenticate and establish an HTTP session with the CRM API."""
+        """Authenticate and establish session with CRM API."""
 
     async def new_chat(self) -> None:
-        """Reset CRM session context or clear customer focus state."""
+        """Reset CRM session state."""
 
     async def send(self, text: str) -> TurnResult:
-        """Send a prompt to the CRM agent and record normalized tool operations."""
+        """Send message to CRM agent and record normalized tool calls."""
         self.turn_index += 1
 
-        # Simulate agent finding customer record and calling POST /customers/CUST-1042/birthday
         if "birthday" in text.lower():
             response_text = (
                 "Found customer Jane Doe (CUST-1042). Updated birthday to 1990-05-15 via POST "
@@ -47,7 +43,7 @@ class CrmChatDriver:
                     name="find_customer",
                     status="completed",
                     turn=self.turn_index,
-                    detail="GET /customers?query=Jane%20Doe -> found CUST-1042",
+                    detail="GET /customers?query=Jane%20Doe -> CUST-1042",
                 ),
                 ToolCall(
                     name="update_customer_birthday",
@@ -71,7 +67,7 @@ class CrmChatDriver:
             index=self.turn_index,
             text=response_text,
             rendered_text=response_text,
-            latency_ms=320,
+            latency_ms=280,
             tool_calls=tool_calls,
         )
 
@@ -129,7 +125,7 @@ class CrmTarget(BaseTarget):
 
     def doctor_checks(self) -> list[Check]:
         return [
-            Check(name="CRM API Endpoint", ok=True, detail="https://api.crm-example.com/v1 reachable"),
+            Check(name="CRM API Endpoint", ok=True, detail="https://api.crm.example.com/v1 reachable"),
             Check(name="CRM Auth Token", ok=True, detail="Token valid with /customers write scope"),
         ]
 
