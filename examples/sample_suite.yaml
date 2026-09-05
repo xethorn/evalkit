@@ -1,0 +1,20 @@
+# Example dataset / evaluation suite for evalkit
+# Each sample represents one evaluation scenario.
+
+- id: math-calculator-01
+  prompt: "What is 15 + 27?"
+  expect:
+    must_contain:
+      - "42"
+    tools:
+      required:
+        - calculator
+
+- id: math-calculator-02
+  prompt: "Calculate 100 divided by 4."
+  expect:
+    must_contain:
+      - "25"
+    tools:
+      required:
+        - calculator

@@ -59,6 +59,7 @@ ignore = ["B008", "BLE001", "S110", "DTZ011"]
 # target would need.
 "src/evalkit/target.py" = ["ARG002"]
 "src/evalkit/mock.py" = ["ARG002"]
+"examples/*" = ["ARG002"]
 # The derived-scorer table is a uniform (judge, rng) signature so it can be applied in one
 # loop; several entries legitimately ignore one or both arguments.
 "src/evalkit/analysis/demo.py" = ["ARG005"]
