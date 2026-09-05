@@ -31,18 +31,18 @@ class SimpleChatDriver:
     async def send(self, text: str) -> TurnResult:
         """Send a user message to the agent and return the turn result."""
         self.turn_index += 1
-        response_text = f"Received prompt: '{text}'. Here is the calculated result."
+        response_text = f"Received prompt: '{text}'. Account ACC-9821 status is active with a $150 balance."
         return TurnResult(
             index=self.turn_index,
             text=response_text,
             rendered_text=response_text,
-            latency_ms=150,
+            latency_ms=250,
             tool_calls=[
                 ToolCall(
-                    name="calculator",
+                    name="lookup_account_details",
                     status="completed",
                     turn=self.turn_index,
-                    detail="performed calculation",
+                    detail="fetched account status",
                 )
             ],
         )
@@ -71,7 +71,7 @@ class SimpleTarget(BaseTarget):
     """An example Target integrating a custom AI agent framework into evalkit."""
 
     name = "simple-agent"
-    display_name = "Simple Agent Example"
+    display_name = "Simple Customer Support Agent Example"
 
     async def open(
         self,
@@ -82,11 +82,34 @@ class SimpleTarget(BaseTarget):
         """Open a new conversation driver for a given sample."""
         return SimpleChatDriver(sample.sample_id, sample.epoch)
 
+    def judge_domain(self) -> str:
+        """What the judge is told it is grading in system prompts.
+
+        The judge prompt uses this to set expectations for rubric evaluations:
+        'You grade an AI customer support assistant's conversation against a rubric.'
+        """
+        return "an AI customer support assistant"
+
+    def tool_aliases(self) -> dict[str, str]:
+        """Map raw tool names on the wire to display names for reports and suites."""
+        return {
+            "lookup_account_details": "Account Lookup",
+            "search_knowledge_base": "KB Search",
+        }
+
+    def vocabulary(self) -> dict[str, list[str]]:
+        """Domain vocabulary for prompt templates (e.g. ${randomVendor()}, ${randomAccount()})."""
+        return {
+            "vendor": ["Acme Corp", "Globex", "Initech"],
+            "account": ["ACC-9821", "ACC-1042", "ACC-5523"],
+        }
+
     def fingerprint(self) -> dict[str, Any]:
         """Return configuration that uniquely identifies this test environment."""
         return {
-            "environment": "example",
+            "environment": "staging",
             "agent_version": "1.0.0",
+            "database": "mock_db_v2",
         }
 
     def doctor_checks(self) -> list[Check]:
@@ -94,6 +117,7 @@ class SimpleTarget(BaseTarget):
         return [
             Check(name="Agent API Connection", ok=True, detail="Successfully connected to simple-agent"),
             Check(name="API Key", ok=True, detail="Key configured"),
+            Check(name="Knowledge Base Search", ok=True, detail="KB index online"),
         ]
 
 

@@ -1,20 +1,45 @@
-# Example dataset / evaluation suite for evalkit
-# Each sample represents one evaluation scenario.
+# Example evaluation suite for evalkit
+# Defines top-level suite metadata, default configurations, and individual tasks.
 
-- id: math-calculator-01
-  prompt: "What is 15 + 27?"
-  expect:
-    must_contain:
-      - "42"
-    tools:
-      required:
-        - calculator
+suite: example-customer-support
+version: 1
 
-- id: math-calculator-02
-  prompt: "Calculate 100 divided by 4."
-  expect:
-    must_contain:
-      - "25"
-    tools:
-      required:
-        - calculator
+defaults:
+  severity: medium
+  tags:
+    - customer-support
+
+tasks:
+  - id: refund-policy-query
+    prompt: "A customer asks if they can get a refund for an item purchased 10 days ago. Can you check our policy and advise?"
+    severity: high
+    tags:
+      - refund
+      - policy
+    expect:
+      must_contain:
+        - "30-day"
+      rubric: |
+        - States clearly that refunds are permitted within the 30-day window.
+        - Explains the steps required to initiate a refund or return.
+        - Maintains a polite and helpful tone.
+      tools:
+        required:
+          - search_knowledge_base
+
+  - id: account-balance-check
+    prompt: "Check the account status and balance for account ID ACC-9821."
+    severity: high
+    tags:
+      - account
+      - tools
+    expect:
+      must_contain:
+        - "ACC-9821"
+      rubric: |
+        - Uses the account Lookup tool to fetch details for ACC-9821.
+        - Reports the account status and balance clearly to the user.
+        - Refrains from disclosing unauthorized personal identifying information.
+      tools:
+        required:
+          - lookup_account_details
